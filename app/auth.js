@@ -3,8 +3,9 @@ const mongo       = require('mongodb').MongoClient;
 const passport    = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 
-module.exports = function (app, db) {
-  
+module.exports = function (app, client) {
+  let db = client.db("test");
+
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -24,7 +25,7 @@ module.exports = function (app, db) {
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: "https://buttercup-delete.gomix.me/auth/github/callback"
+        callbackURL: "https://olenamelnyk-boilerplate-socketio.glitch.me/auth/github/callback"
       },
       function(accessToken, refreshToken, profile, cb) {
           db.collection('chatusers').findAndModify(
@@ -34,7 +35,7 @@ module.exports = function (app, db) {
                   id: profile.id,
                   name: profile.displayName || 'Anonymous',
                   photo: profile.photos[0].value || '',
-                  email: profile.emails[0].value || 'No public email',
+                  email: 'No public email',
                   created_on: new Date(),
                   provider: profile.provider || '',
                   chat_messages: 0
@@ -47,8 +48,11 @@ module.exports = function (app, db) {
               (err, doc) => {
                   return cb(null, doc.value);
               }
+
+
+
           );
         }
     ));
-  
+
 }

@@ -2,6 +2,7 @@ const passport    = require('passport');
 
 module.exports = function (app, db) {
   
+
     function ensureAuthenticated(req, res, next) {
       if (req.isAuthenticated()) {
           return next();
@@ -10,10 +11,13 @@ module.exports = function (app, db) {
     };
 
     app.route('/auth/github')
-      .get(passport.authenticate('github'));
+      .get(passport.authenticate('github'), (req, res) => {
+           console.log("call github");
+           });
 
     app.route('/auth/github/callback')
       .get(passport.authenticate('github', { failureRedirect: '/' }), (req,res) => {
+      //console.log("get callback");
           req.session.user_id = req.user.id;
           res.redirect('/chat');
       });
@@ -25,7 +29,7 @@ module.exports = function (app, db) {
 
     app.route('/chat')
       .get(ensureAuthenticated, (req, res) => {
-        console.log(req.session);
+        //console.log(req.session);
            res.render(process.cwd() + '/views/pug/chat', {user: req.user});
       });
 
@@ -40,5 +44,5 @@ module.exports = function (app, db) {
         .type('text')
         .send('Not Found');
     });
-  
+
 }
